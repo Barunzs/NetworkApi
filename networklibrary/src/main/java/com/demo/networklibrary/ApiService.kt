@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import okhttp3.ResponseBody
 import rx.Observable
+import java.io.Reader
 
 
 class ApiService<TYPE> {

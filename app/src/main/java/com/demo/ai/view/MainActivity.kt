@@ -7,6 +7,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.demo.ai.R
 import com.demo.ai.model.Media
+import com.demo.ai.model.Movie
 import com.demo.networklibrary.ApiService
 
 import kotlinx.android.synthetic.main.activity_main.*
@@ -17,10 +18,13 @@ import rx.schedulers.Schedulers
 class MainActivity : AppCompatActivity() {
 
     val TAG = MainActivity::class.java.canonicalName
+
     //https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=325a2832e37f32ffdf4b2c29749922d8
     //https://api.themoviedb.org/3/movie/550?api_key=325a2832e37f32ffdf4b2c29749922d8
     val BASEURL = "https://api.themoviedb.org/"
-    val END_POINT = "3/movie/550?api_key=325a2832e37f32ffdf4b2c29749922d8"
+    val END_POINT =
+        "3/discover/movie?sort_by=popularity.desc&api_key=325a2832e37f32ffdf4b2c29749922d8"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -28,19 +32,22 @@ class MainActivity : AppCompatActivity() {
 
         fab.setOnClickListener {
             try {
-                ApiService<Media>().getDataFromServer(
+                ApiService<Movie>().getDataFromServer(
                     END_POINT,
-                    Media::class.java,
-                    Media(),
+                    Movie::class.java,
+                    Movie(),
                     BASEURL
                 )?.subscribeOn(Schedulers.io())
                     ?.observeOn(AndroidSchedulers.mainThread())
-                    ?.subscribe(object : Subscriber<Media>() {
-                        override fun onNext(media: Media?) {
-                            Log.d(
-                                TAG,
-                                "onNext${media}"
-                            )
+                    ?.subscribe(object : Subscriber<Movie>() {
+                        override fun onNext(media: Movie?) {
+                            for (movie in media?.results!!) {
+                                Log.d(
+                                    TAG,
+                                    "onNext::${movie.title}"
+                                )
+                            }
+
                         }
 
                         override fun onCompleted() {
@@ -48,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         override fun onError(e: Throwable?) {
-                            Log.e(TAG, "onError")
+                            Log.e(TAG, "onError${e?.message}")
                         }
                     })
 
